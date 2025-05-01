@@ -18,6 +18,8 @@ function TableList({ handleOpen }) {
     getClients();
   }, [getClients]);
 
+  
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -27,6 +29,7 @@ function TableList({ handleOpen }) {
       </div>
     );
   }
+  console.log(clients)
 
   return (
     <div className="overflow-x-auto mt-10">

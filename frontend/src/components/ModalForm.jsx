@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useCrudStore } from "../store/useCrudStore";
-import { getClient } from "../../../backend/controllers/client.controller";
 
 export default function ModalForm({ isOpen, onClose, mode }) {
   const [formData, setFormData] = useState({
@@ -11,17 +10,16 @@ export default function ModalForm({ isOpen, onClose, mode }) {
     isactive: false,
   });
 
-  const { updateClient, createClient, client, clientId, isLoading } =
+  const { updateClient, getClient, createClient, client, clientId, isLoading } =
     useCrudStore();
 
   const handleChange = (e) => {
-    const value =
-      e.target.name === "isactive"
-        ? e.target.value === "Active"
-        : e.target.type === "number"
-        ? Number(e.target.value)
-        : e.target.value;
-
+    let value = e.target.value;
+    if (e.target.name === "isactive") {
+      value = value === "Active";
+    } else if (e.target.type === "number") {
+      value = Number(value);
+    }
     setFormData({ ...formData, [e.target.name]: value });
   };
 
@@ -36,19 +34,34 @@ export default function ModalForm({ isOpen, onClose, mode }) {
   };
 
   useEffect(() => {
-    getClient(clientId);
+    if (mode === "edit") {
+      getClient(clientId);
+    }
+  }, [getClient, clientId, mode]);
+
+  useEffect(() => {
     if (mode === "edit") {
       if (!isLoading) {
         setFormData({
-          name: client.name,
-          email: client.email,
-          job: client.job,
-          rate: client.rate,
-          isactive: client.isactive,
+          name: client.name || "",
+          email: client.email || "",
+          job: client.job || "",
+          rate: client.rate || "",
+          isactive: client.isactive || false,
         });
       }
     }
-  }, [clientId,client,isLoading,mode]);
+  }, [client, isLoading, mode]);
+
+  if (isLoading && mode === "edit") {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-xl font-semibold text-gray-700 animate-pulse">
+          Loading...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -57,7 +70,7 @@ export default function ModalForm({ isOpen, onClose, mode }) {
           <h3 className="font-bold text-lg">
             {mode === "edit" ? "Edit Client" : "Client Details"}
           </h3>
-          <form method="dialog" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <label className="input my-4 flex items-center gap-2">
               Name
               <input
@@ -119,6 +132,7 @@ export default function ModalForm({ isOpen, onClose, mode }) {
               </select>
             </div>
             <button
+              type="button"
               className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
               onClick={onClose}
             >
