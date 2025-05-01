@@ -29,7 +29,6 @@ function TableList({ handleOpen }) {
       </div>
     );
   }
-  console.log(clients)
 
   return (
     <div className="overflow-x-auto mt-10">
